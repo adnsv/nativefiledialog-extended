@@ -66,6 +66,8 @@ T* copy(const T* begin, const T* end, T* out) {
     return out;
 }
 
+XID modality_arg;
+
 // Does not own the filter and extension.
 struct Pair_GtkFileFilter_FileExtension {
     GtkFileFilter* filter;
@@ -372,6 +374,11 @@ gint RunDialogWithFocus(GtkDialog* dialog) {
     gtk_widget_show_all(GTK_WIDGET(dialog));  // show the dialog so that it gets a display
     if (GDK_IS_X11_DISPLAY(gtk_widget_get_display(GTK_WIDGET(dialog)))) {
         GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(dialog));
+        if (modality_arg) {
+            auto gw = gdk_x11_window_foreign_new_for_display(gtk_widget_get_display(GTK_WIDGET(dialog)), XID(modality_arg));
+            if (gw)
+                gdk_window_set_transient_for(window, gw);
+        }
         gdk_window_set_events(
             window,
             static_cast<GdkEventMask>(gdk_window_get_events(window) | GDK_PROPERTY_CHANGE_MASK));
@@ -399,6 +406,7 @@ nfdresult_t NFD_Init(void) {
         NFDi_SetError("Failed to initialize GTK+ with gtk_init_check.");
         return NFD_ERROR;
     }
+    modality_arg = XID(0);
     return NFD_OKAY;
 }
 void NFD_Quit(void) {
@@ -664,3 +672,7 @@ nfdresult_t NFD_PathSet_EnumNextN(nfdpathsetenum_t* enumerator, nfdnchar_t** out
 
 nfdresult_t NFD_PathSet_EnumNextU8(nfdpathsetenum_t* enumerator, nfdu8char_t** outPath)
     __attribute__((alias("NFD_PathSet_EnumNextN")));
+
+void NFD_SetModality(void* arg) {
+    modality_arg = XID(arg);
+}
