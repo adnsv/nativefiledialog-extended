@@ -308,6 +308,8 @@ typedef nfdu8filteritem_t nfdfilteritem_t;
 #define NFD_PathSet_EnumNext NFD_PathSet_EnumNextU8
 #endif  // NFD_NATIVE
 
+void NFD_SetModality(void* arg);
+
 #ifdef __cplusplus
 }
 #endif  // __cplusplus

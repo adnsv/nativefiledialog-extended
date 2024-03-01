@@ -30,6 +30,10 @@ inline void Quit() noexcept {
     ::NFD_Quit();
 }
 
+inline void SetModality(void* arg) {
+    ::NFD_SetModality(arg);
+}
+
 inline void FreePath(nfdnchar_t* outPath) noexcept {
     ::NFD_FreePathN(outPath);
 }

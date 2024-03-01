@@ -303,6 +303,8 @@ namespace {
 bool needs_uninitialize;
 }  // namespace
 
+void* modality_arg;
+
 nfdresult_t NFD_Init(void) {
     // Init COM library.
     HRESULT result =
@@ -320,6 +322,8 @@ nfdresult_t NFD_Init(void) {
         NFDi_SetError("Failed to initialize COM.");
         return NFD_ERROR;
     }
+
+    modality_arg = NULL;
 }
 void NFD_Quit(void) {
     if (needs_uninitialize) ::CoUninitialize();
@@ -372,7 +376,7 @@ nfdresult_t NFD_OpenDialogN(nfdnchar_t** outPath,
     }
 
     // Show the dialog.
-    result = fileOpenDialog->Show(nullptr);
+    result = fileOpenDialog->Show((HWND)modality_arg);
     if (SUCCEEDED(result)) {
         // Get the file name
         ::IShellItem* psiResult;
@@ -443,7 +447,7 @@ nfdresult_t NFD_OpenDialogMultipleN(const nfdpathset_t** outPaths,
     }
 
     // Show the dialog.
-    result = fileOpenDialog->Show(nullptr);
+    result = fileOpenDialog->Show((HWND)modality_arg);
     if (SUCCEEDED(result)) {
         ::IShellItemArray* shellItems;
         result = fileOpenDialog->GetResults(&shellItems);
@@ -512,7 +516,7 @@ nfdresult_t NFD_SaveDialogN(nfdnchar_t** outPath,
     }
 
     // Show the dialog.
-    result = fileSaveDialog->Show(nullptr);
+    result = fileSaveDialog->Show((HWND)modality_arg);
     if (SUCCEEDED(result)) {
         // Get the file name
         ::IShellItem* psiResult;
@@ -567,7 +571,7 @@ nfdresult_t NFD_PickFolderN(nfdnchar_t** outPath, const nfdnchar_t* defaultPath)
     }
 
     // Show the dialog to the user
-    const HRESULT result = fileOpenDialog->Show(nullptr);
+    const HRESULT result = fileOpenDialog->Show((HWND)modality_arg);
     if (result == HRESULT_FROM_WIN32(ERROR_CANCELLED)) {
         return NFD_CANCEL;
     } else if (!SUCCEEDED(result)) {
@@ -974,4 +978,10 @@ nfdresult_t NFD_PathSet_EnumNextU8(nfdpathsetenum_t* enumerator, nfdu8char_t** o
     }
 
     return res;
+}
+
+void NFD_SetModality(void* arg) {
+    // arg is:
+    // WIN32 backend: Owner HWND
+    modality_arg = arg;
 }
