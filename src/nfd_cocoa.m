@@ -453,3 +453,6 @@ nfdresult_t NFD_PathSet_EnumNextN(nfdpathsetenum_t* enumerator, nfdnchar_t** out
 nfdresult_t NFD_PathSet_EnumNextU8(nfdpathsetenum_t* enumerator, nfdu8char_t** outPath) {
     return NFD_PathSet_EnumNextN(enumerator, outPath);
 }
+
+void NFD_SetModality(void* arg) {
+}
